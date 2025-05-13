@@ -27,17 +27,19 @@ RotaryEncoder encoder(BTN_EN1, BTN_EN2, RotaryEncoder::LatchMode::TWO03);
 Pushbutton button(BTN_ENC);
 
 // Initialize the DHT sensor
+// instanciação de controle de temparatura e humidade
 DHT dht(DHT_PIN, DHT_TYPE);
 
 // Initialize the LCD object
-const int rs = 16, en = 17, d4 = 23, d5 = 25, d6 = 27, d7 = 29;
+const int rs = 16, en = 17, d4 = 23, d5 = 25, d6 = 27, d7 = 29; // pinos relacionados com LCD
 const int buzzer = 37;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 int linha[4] = {0, 1, 2, 3};
 
 unsigned long lastMillis = millis();
 
-byte Celsius[8] =
+// bitmap encodado como
+byte bitmapCelsius[8] =
 {
   0b11000,
   0b11000,
@@ -48,7 +50,7 @@ byte Celsius[8] =
   0b01001,
   0b00110
 };
-byte Seta1[8] =
+byte bitmapSeta1[8] =
 {
   0b00000,
   0b00000,
@@ -59,7 +61,7 @@ byte Seta1[8] =
   0b00000,
   0b00000
 };
-byte Seta2[8] =
+byte bitmapSeta2[8] =
 {
   0b10000,
   0b11000,
@@ -71,9 +73,9 @@ byte Seta2[8] =
   0b10000
 };
 
-float temp;
-float umi;
-float mesa;
+float temperaturaInterna;
+float umidadeInterna;
+float mesaTemperatura;
 int FANTEMP = 35;
 int FANMAX = 25;
 int FANMIN = 20;
@@ -87,7 +89,7 @@ double Setpoint, Input, Output;
 double Kp = 15, Ki = 1, Kd = 15;
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
-double readTemperature()
+double readTemperature() // Temperatura da mesa
 {
   VRT = analogRead(PIN_INPUT);  // Acquisition analog value of VRT
   VRT = (5.00 / 1023.00) * VRT; // Conversion to voltage
@@ -107,19 +109,19 @@ void lcdprint()
   {
     lcd.setCursor(0, 0);
     lcd.print("Temp. Geral: ");
-    lcd.print(temp);
+    lcd.print(temperaturaInterna);
     lcd.print(" ");
     lcd.write(byte(0));
     lcd.print(" ");
     lcd.setCursor(0, 1);
     lcd.print("Temp. Mesa: ");
-    lcd.print(mesa);
+    lcd.print(mesaTemperatura);
     lcd.print(" ");
     lcd.write(byte(0));
     lcd.print(" ");
     lcd.setCursor(0, 2);
     lcd.print("Umidade: ");
-    lcd.print(umi);
+    lcd.print(umidadeInterna);
     lcd.print(" % ");
     lcd.setCursor(0, 3);
     lcd.print("PWM: ");
@@ -131,16 +133,16 @@ void lcdprint()
 
 void serialdata()
 {
-  temp = dht.readTemperature();
-  umi = dht.readHumidity();
-  mesa = readTemperature();
+  temperaturaInterna = dht.readTemperature();
+  umidadeInterna = dht.readHumidity();
+  mesaTemperatura = readTemperature();
   Serial.print("Temperatura: ");
-  Serial.print(temp);
+  Serial.print(temperaturaInterna);
   Serial.print(" °C   Umidade: ");
-  Serial.print(umi);
+  Serial.print(umidadeInterna);
   Serial.print(" %   ");
   Serial.print("Temperatura mesa: ");
-  Serial.print(mesa);
+  Serial.print(mesaTemperatura);
   Serial.print(" °C");
   Serial.print("   Setpoint: ");
   Serial.print(Setpoint);
@@ -156,7 +158,7 @@ void setpointconfig()
   lcd.setCursor(0, 0);
   lcd.print("Temp. Mesa: ");
   lcd.setCursor(0, 1);
-  lcd.print(mesa);
+  lcd.print(mesaTemperatura);
   lcd.print(" ");
   lcd.write(byte(0));
   lcd.print(" ");
@@ -178,7 +180,7 @@ void setpointconfig()
       lcd.setCursor(0, 0);
       lcd.print("Temp. Mesa: ");
       lcd.setCursor(0, 1);
-      lcd.print(mesa);
+      lcd.print(mesaTemperatura);
       lcd.print(" ");
       lcd.write(byte(0));
       lcd.print(" ");
@@ -190,7 +192,7 @@ void setpointconfig()
       lcd.write(byte(0));
       lcd.print(" ");
       Serial.print("Temperatura mesa: ");
-      Serial.print(mesa);
+      Serial.print(mesaTemperatura);
       Serial.print(" °C || ");
       Serial.print("Setpoint: ");
       Serial.print(Setpoint);
@@ -309,13 +311,13 @@ void umimaxfanconfig()
     }
     if (button.getSingleDebouncedPress())
     {
-      umiminfanconfig();
+      minimalFanUmidityConfig();
       break;
     }
   }
 }
 
-void umiminfanconfig()
+void minimalFanUmidityConfig()
 {
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -445,13 +447,13 @@ void calcPID()
 
 void ativaFAN()
 {
-  if (temp > FANTEMP)
+  if (temperaturaInterna > FANTEMP)
   {
-    if (umi > FANMAX)
+    if (umidadeInterna > FANMAX)
     {
       analogWrite(PIN_FAN, 100);
     }
-    else if (umi <= FANMIN)
+    else if (umidadeInterna <= FANMIN)
     {
       analogWrite(PIN_FAN, 0);
     }
@@ -469,9 +471,9 @@ void setup()
   dht.begin();
   // Initialize the LCD
   lcd.begin(LCD_COLS, LCD_ROWS);
-  lcd.createChar(0, Celsius);
-  lcd.createChar(1, Seta1);
-  lcd.createChar(2, Seta2);
+  lcd.createChar(0, bitmapCelsius);
+  lcd.createChar(1, bitmapSeta1);
+  lcd.createChar(2, bitmapSeta2);
 
   pinMode(BTN_ENC, INPUT);
   pinMode(PIN_OUTPUT, OUTPUT);

@@ -15,7 +15,7 @@
 #define R 4700 // R=10KΩ
 
 // Constants LCD, Encoder and DHT22
-#define DHT_PIN 4a
+#define DHT_PIN 4
 #define DHT_TYPE DHT22
 #define LCD_COLS 20
 #define LCD_ROWS 4
@@ -488,7 +488,7 @@ void setup()
 
   lcd.setCursor(0, 0);
   lcd.print("Inicializando");
-  for (int i = 0; i <= 6; i++)
+  for (int i = 0; i <= 5; i++)
   {
     lcd.print(".");
     delay(200);

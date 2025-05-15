@@ -1,23 +1,161 @@
-#include <Arduino.h>
+#include <DHT.h>
+#include <LiquidCrystal.h>
+#include <PID_v1_bc.h>
+#include <RotaryEncoder.h>
+#include <Pushbutton.h>
 
-// Definições de Pinos e Constantes
+// Definições de pinos e constantes
+#define FAN_PIN 9      // Ventoinha
+#define INPUT_PIN 14   // Termistor mesa
+#define OUTPUT_PIN 8   // Mesa
+#define RT0 100000     // Ω
+#define B 3950         // K
+#define VCC 5          // Supply voltage
+#define R 4700         // R=10KΩ
+#define DHT_PIN 4      // Sensor temperatura
+#define DHT_TYPE DHT22 // Sensor temperatura
+#define LCD_COLS 20    // Colunas do LCD
+#define LCD_ROWS 4     // Linhas do LCD
+#define BTN_EN1 31     // Encoder 1
+#define BTN_EN2 33     // Encoder 2
+#define BTN_ENC 35     // Botão do encoder
+#define BUZZER_PIN 37  // Buzzer
+#define LCD_RS 16      // LCD RS Pin
+#define LCD_EN 17      // LCD EN Pin
+#define LCD_D4 23      // LCD D4 Pin
+#define LCD_D5 25      // LCD D5 Pin
+#define LCD_D6 27      // LCD D6 Pin
+#define LCD_D7 29      // LCD D7 Pin
 
+// Definições de variáveis
+int row[4] = {0, 1, 2, 3}; // Linhas do LCD
+// Simbolo °C
+byte bitmapCelsius[8] =
+    {
+        0b11000,
+        0b11000,
+        0b00000,
+        0b00110,
+        0b01001,
+        0b01000,
+        0b01001,
+        0b00110};
+// Simbolo ->
+byte bitmapSeta1[8] =
+    {
+        0b00000,
+        0b00000,
+        0b00000,
+        0b01111,
+        0b01111,
+        0b00000,
+        0b00000,
+        0b00000};
+// Simbolo ->
+byte bitmapSeta2[8] =
+    {
+        0b10000,
+        0b11000,
+        0b11100,
+        0b11110,
+        0b11110,
+        0b11100,
+        0b11000,
+        0b10000};
 
-// Declaração de Variáveis Globais
+float internal_temp;                // Temperatura interna (DHT22)
+float internal_hum;                 // Umidade interna (DHT22)
+float bed_temp;                     // Temperatura da mesa (INPUT_PIN - Termistor)
+double Setpoint, Input, Output;     // Variáveis do PID da mesa
+const int Kp = 15, Ki = 1, Kd = 15; // Constantes do PID da mesa
 
+RotaryEncoder encoder(BTN_EN1, BTN_EN2, RotaryEncoder::LatchMode::TWO03); // Encoder
+Pushbutton button(BTN_ENC);                                               // Botão do encoder
+DHT dht(DHT_PIN, DHT_TYPE);                                               // Sensor de temperatura e umidade
+LiquidCrystal lcd(LCD_RS, LCD_EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7);        // LCD
+PID bedPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);               // PID da mesa
 
-// Funções Auxiliares
+// Retorna a temperatura da mesa
+float readBedTemp()
+{
+  float RT, VR, ln, TX, VRT;
+  const float T0 = 20 + 273.15; // K -> °C
 
+  VRT = analogRead(INPUT_PIN); // Lê o valor analógico do pino do termistor
+
+  VRT = (5.00 / 1023.00) * VRT; // Converte o valor lido para tensão
+
+  VR = VCC - VRT; // Calcula a tensão restante (VCC - VRT)
+
+  RT = VRT / (VR / R); // Calcula a resistência do termistor (RT)
+
+  ln = log(RT / RT0); // Calcula o logaritmo natural da razão entre RT e RT0
+
+  TX = (1 / ((ln / B) + (1 / T0))); // Calcula a temperatura em Kelvin usando a equação de Steinhart-Hart
+
+  TX = TX - 273.15; // Converte a temperatura de Kelvin para Celsius
+  return TX;        // Retorna a temperatura calculada
+}
+
+// Calcula o PID da mesa
+void calcBedPID()
+{
+  Input = readBedTemp();           // Lê a temperatura da mesa
+  bedPID.Compute();                // Calcula o PID
+  analogWrite(OUTPUT_PIN, Output); // Ajusta a potência da mesa
+}
+
+// Imprime os dados no Serial
+void printInfo()
+{
+  internal_temp = dht.readTemperature();
+  internal_hum = dht.readHumidity();
+  bed_temp = readBedTemp();
+  Serial.print("Temperatura: ");
+  Serial.print(internal_temp);
+  Serial.print(" °C   Umidade: ");
+  Serial.print(internal_hum);
+  Serial.print(" %   ");
+  Serial.print("Temperatura mesa: ");
+  Serial.print(bed_temp);
+  Serial.print(" °C");
+  Serial.print("   Setpoint: ");
+  Serial.print(Setpoint);
+  Serial.print(" °C");
+  Serial.print("   PWM: ");
+  Serial.print(map(Output, 0, 255, 0, 100));
+  Serial.println(" % ");
+}
 
 // Função setup
-void setup() {
-  // Inicialização e configurações iniciais
+void setup()
+{
   Serial.begin(9600);
-  Serial.println("Projeto Arduino Iniciado!");
+  lcd.begin(LCD_COLS, LCD_ROWS); // Inicializa o LCD
+
+  dht.begin(); // Inicializa o sensor DHT
+
+  pinMode(BTN_ENC, INPUT);
+  pinMode(OUTPUT_PIN, OUTPUT);
+  pinMode(FAN_PIN, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+
+  Input = readBedTemp(); // Lê a temperatura inicial da mesa
+  Setpoint = 100;        // Define a temperatura desejada (Setpoint)
+
+  bedPID.SetMode(AUTOMATIC); // Ativa o modo automático do PID
+
+  digitalWrite(BUZZER_PIN, HIGH);
+  delay(200);
+  digitalWrite(BUZZER_PIN, LOW);
+
+  lcd.setCursor(0, 0);
+  lcd.print("Testando PID");
 }
 
 // Função loop
-void loop() {
-  // Lógica principal do seu projeto
-  delay(1000); // Exemplo de delay de 1 segundo
+void loop()
+{
+  calcBedPID();
+  printInfo();
 }

@@ -29,39 +29,6 @@
 
 // Definições de variáveis
 int row[4] = {0, 1, 2, 3}; // Linhas do LCD
-// Simbolo °C
-byte bitmapCelsius[8] =
-    {
-        0b11000,
-        0b11000,
-        0b00000,
-        0b00110,
-        0b01001,
-        0b01000,
-        0b01001,
-        0b00110};
-// Simbolo ->
-byte bitmapSeta1[8] =
-    {
-        0b00000,
-        0b00000,
-        0b00000,
-        0b01111,
-        0b01111,
-        0b00000,
-        0b00000,
-        0b00000};
-// Simbolo ->
-byte bitmapSeta2[8] =
-    {
-        0b10000,
-        0b11000,
-        0b11100,
-        0b11110,
-        0b11110,
-        0b11100,
-        0b11000,
-        0b10000};
 
 float internal_temp;                         // Temperatura interna (DHT22)
 float internal_hum;                          // Umidade interna (DHT22)
@@ -115,27 +82,6 @@ void calcFanPID()
   analogWrite(FAN_PIN, fan_OUTPUT); // Ajusta a potência da ventoinha
 }
 
-// Imprime os dados no Serial
-void printInfo()
-{
-  internal_temp = dht.readTemperature();
-  internal_hum = dht.readHumidity();
-  bed_temp = readBedTemp();
-  Serial.print("Temperatura: ");
-  Serial.print(internal_temp);
-  Serial.print(" °C   Umidade: ");
-  Serial.print(internal_hum);
-  Serial.print(" %   ");
-  Serial.print("Temperatura mesa: ");
-  Serial.print(bed_temp);
-  Serial.print(" °C");
-  Serial.print("   PWM Mesa: ");
-  Serial.print(map(bed_OUTPUT, 0, 255, 0, 100));
-  Serial.print(" %");
-  Serial.print("   PWM Fan: ");
-  Serial.print(map(fan_OUTPUT, 0, 125, 0, 100));
-  Serial.println(" %");
-}
 
 // Função setup
 void setup()
@@ -174,6 +120,7 @@ void setup()
 void loop()
 {
   calcBedPID();
-  calcFanPID();
+  // so ativa dps de 50°c
+    calcFanPID();
   printInfo();
 }

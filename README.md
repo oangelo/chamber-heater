@@ -71,10 +71,15 @@ Estufa/
 4. Conecte o Arduino ao computador e carregue o código no microcontrolador.
 5. Monte o hardware conforme descrito na seção **Configuração de Pinos**.
 
-## Contribuições
-- Sinta-se à vontade para contribuir com melhorias, correções de bugs ou novas funcionalidades.
-- Para contribuir, siga as instruções no arquivo `contributing.md`.
+## 🤝 Contribuindo
 
+Este projeto segue as **Boas Práticas do Serra Rocketry**. Antes de contribuir:
+
+1. 📖 Leia nosso [Guia de Boas Práticas](https://github.com/Serra-Rocketry/best-practices/blob/main/README.md)
+2. 🔄 Siga o fluxo: Fork → Branch → Pull Request
+3. 📝 Documente suas mudanças
+
+**Primeira vez contribuindo?** Não se preocupe! O guia explica tudo passo a passo.
 ## Notas Adicionais
 - Certifique-se de instalar todas as bibliotecas necessárias antes de compilar o código.
 - O sistema foi projetado para ser modular e facilmente adaptável a diferentes configurações de hardware.

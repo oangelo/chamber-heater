@@ -1,0 +1,25 @@
+# Requirements for Chamber Heater - Python Scripts
+# Install with: pip install -r requirements.txt
+
+# Serial communication
+pyserial>=3.5
+
+# Data analysis and visualization
+pandas>=1.5.0
+matplotlib>=3.5.0
+numpy>=1.21.0
+
+# Optional: For advanced plotting
+# seaborn>=0.12.0
+
+# Optional: For web dashboard (future)
+# flask>=2.3.0
+# dash>=2.11.0
+
+# Optional: For time series database (future)
+# influxdb-client>=1.36.0
+
+# Development tools (optional)
+# jupyter>=1.0.0
+# ipython>=8.0.0
+

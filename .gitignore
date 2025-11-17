@@ -1,4 +1,51 @@
-.build
-.vscode
-*.tmp
+# Builds e compilados
+*.hex
+*.bin
+*.elf
+*.eep
+*.map
+*.sym
+.build/
+build/
+
+# Arquivos pessoais do IDE
+.vscode/
+.idea/
+*.code-workspace
+.DS_Store
+
+# Arduino IDE
+*.autosave
+__vm/
+
+# PlatformIO
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# Dados grandes
+*.csv
 *.log
+results/raw_data/
+data/*.csv
+
+# Arquivos temporários
+*.tmp
+*.bak
+*~
+
+# Segredos e configurações pessoais
+config.h
+credentials.h
+.env
+
+# Python (se houver scripts de análise)
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.pytest_cache/
+
+# Documentação gerada
+docs/_build/
+*.pdf.bak

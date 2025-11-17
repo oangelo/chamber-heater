@@ -1,75 +1,98 @@
-# Estufa
+# Chamber Heater (Estufa)
 
-Este projeto é um sistema automatizado para controle de temperatura e umidade em uma estufa. Ele utiliza sensores, atuadores e um controlador PID para manter as condições ideais.
+![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
+![Versão](https://img.shields.io/badge/versão-1.0.0-blue)
+![Plataforma](https://img.shields.io/badge/plataforma-Arduino%20Mega-red)
 
-## Funcionalidades
-- Monitoramento de temperatura e umidade interna.
-- Controle de temperatura da mesa utilizando um controlador PID.
-- Controle automático de ventiladores com base em temperatura e umidade.
-- Interface com display LCD para exibição de informações em tempo real.
-- Configuração de setpoints e parâmetros diretamente no dispositivo, utilizando um encoder rotativo e botões.
-- Emissão de dados via porta serial para monitoramento externo.
+## 📋 Sobre
 
-## Hardware
-- **Microcontrolador**: Arduino Mega.
-- **Sensores**:
-  - DHT22: Sensor de temperatura e umidade.
-  - Termistor: Para medição da temperatura da mesa.
-- **Atuadores**:
-  - Ventilador (Fan) controlado por PWM.
-  - Buzzer para notificações sonoras.
-- **Interface**:
-  - Display LCD 20x4.
-  - Encoder rotativo com botão integrado.
+Sistema automatizado para controle de temperatura e umidade em câmara térmica (estufa). Utiliza controladores PID para manter temperatura da mesa aquecida e controle automático de ventilação baseado em temperatura e umidade ambiente.
 
-## Configuração de Pinos
-- **Pinos do Arduino**:
-  - **Pino 4**: Sensor DHT22.
-  - **Pino 9**: Controle PWM do ventilador.
-  - **Pino 8**: Saída do controlador PID.
-  - **Pinos 16-29**: Conexão com o display LCD.
-  - **Pino 37**: Buzzer.
-  - **Pinos 31, 33, 35**: Encoder rotativo e botão.
+## 🚀 Quick Start
 
-## Bibliotecas Utilizadas
-- `DHT.h`: Para leitura do sensor DHT22.
-- `LiquidCrystal.h`: Para controle do display LCD.
-- `PID_v1.h`: Para implementação do controlador PID.
-- `RotaryEncoder.h`: Para leitura do encoder rotativo.
-- `Pushbutton.h`: Para gerenciamento do botão do encoder.
+1. Clone o repositório
+   ```bash
+   git clone https://github.com/SerraRocketry/chamber-heater.git
+   cd chamber-heater
+   ```
 
-## Estrutura do Projeto
-A estrutura do projeto é organizada da seguinte forma:
+2. Instale as bibliotecas necessárias no Arduino IDE
+
+3. Configure o hardware conforme pinagem descrita em [hardware/README.md](./hardware/README.md)
+
+4. Carregue `firmware/firmware.ino` no Arduino Mega
+
+5. Configure setpoints usando o encoder rotativo e display LCD
+
+## 📁 Estrutura do Projeto
+
 ```
-Estufa/
-├── docs/                     # Documentação (diagramas, imagens, datasheets)
-├── firmware/                 # Código principal do Arduino
+chamber-heater/
+├── docs/              → Documentação técnica detalhada
+│   ├── hardware/      → Datasheets e esquemáticos
+│   └── diagrams/      → Diagramas de fluxo e estados
+├── firmware/          → Código do Arduino
 │   └── firmware.ino
-├── hardware/                 # Arquivos e informações do hardware
-├── lib/                      # Bibliotecas personalizadas ou adaptadas
-├── test/                     # Scripts de teste (verificação, debug, etc.)
-├── extras/                   # Scripts auxiliares (ex: leitura serial em Python)
-├── .gitignore                # Arquivos e pastas ignorados pelo Git
-├── README.md                 # Descrição do projeto
-└── contributing.md           # (Opcional) Como contribuir com o projeto
+├── hardware/          → Arquivos de hardware e montagem
+│   ├── pcb/          → Arquivos de PCB (futuros)
+│   └── images/       → Fotos da montagem
+├── lib/              → Bibliotecas customizadas
+├── test/             → Testes e validação
+│   └── fan_pid/      → Teste isolado do PID do ventilador
+└── extras/           → Scripts auxiliares e versões antigas
 ```
 
-## Como usar
-1. Clone o repositório:
-    ```bash
-    git clone https://github.com/SerraRocketry/Estufa.git
-    ```
-2. Navegue até o diretório do projeto:
-    ```bash
-    cd Estufa
-    ```
-3. Abra o arquivo `firmware/firmware.ino` no Arduino IDE:
-    ```bash
-    arduino firmware/firmware.ino
-    ```
-    ou abra o Arduino IDE e selecione `File > Open` e escolha o arquivo `firmware.ino`.
-4. Conecte o Arduino ao computador e carregue o código no microcontrolador.
-5. Monte o hardware conforme descrito na seção **Configuração de Pinos**.
+## 🔧 Pré-requisitos
+
+### Hardware
+- Arduino Mega 2560 (ou compatível MKS GEN v1.4)
+- DHT22 - Sensor de temperatura e umidade
+- Termistor NTC 100kΩ (B=3950K)
+- Display LCD 20x4 com interface paralela
+- Encoder rotativo com botão integrado
+- Ventilador 12V com controle PWM
+- Buzzer para notificações
+- Fonte de alimentação adequada
+
+### Software
+- Arduino IDE 1.8.x ou superior / PlatformIO
+- Bibliotecas (ver [firmware/README.md](./firmware/README.md)):
+  - DHT
+  - LiquidCrystal
+  - PID_v1_bc
+  - RotaryEncoder
+  - Pushbutton
+
+## 📖 Documentação
+
+- [Guia de Instalação Detalhado](./docs/INSTALACAO.md)
+- [Hardware e Pinagem](./hardware/README.md)
+- [Arquitetura do Firmware](./firmware/README.md)
+- [Troubleshooting](./docs/TROUBLESHOOTING.md)
+- [Changelog](./CHANGELOG.md)
+
+## 📊 Status do Projeto
+
+- [x] Leitura de sensores (DHT22 e termistor)
+- [x] Controle PID da mesa aquecida
+- [x] Controle automático de ventilador
+- [x] Interface com LCD 20x4
+- [x] Configuração via encoder rotativo
+- [ ] Logging de dados em cartão SD
+- [ ] Interface web para monitoramento remoto
+- [ ] Gráficos de temperatura em tempo real
+
+## 🎯 Características Principais
+
+- **Controle PID**: Temperatura da mesa mantida com precisão usando PID
+- **Monitoramento**: Display LCD mostra temperatura, umidade e setpoints em tempo real
+- **Configuração fácil**: Ajuste de parâmetros via encoder rotativo sem necessidade de recompilar
+- **Notificações**: Buzzer alerta sobre condições críticas
+- **Serial output**: Dados transmitidos via serial para logging externo
+
+## ✨ Autores
+
+- [@oangelo](https://github.com/oangelo) - Desenvolvimento inicial
 
 ## 🤝 Contribuindo
 
@@ -77,9 +100,9 @@ Este projeto segue as **Boas Práticas do Serra Rocketry**. Antes de contribuir:
 
 1. 📖 Leia nosso [Guia de Boas Práticas](https://github.com/Serra-Rocketry/best-practices/blob/main/README.md)
 2. 🔄 Siga o fluxo: Fork → Branch → Pull Request
-3. 📝 Documente suas mudanças
+3. 📝 Documente suas mudanças (veja [contributing.md](./contributing.md))
+4. ✅ Teste suas alterações antes de enviar
 
-**Primeira vez contribuindo?** Não se preocupe! O guia explica tudo passo a passo.
-## Notas Adicionais
-- Certifique-se de instalar todas as bibliotecas necessárias antes de compilar o código.
-- O sistema foi projetado para ser modular e facilmente adaptável a diferentes configurações de hardware.
+## 📄 Licença
+
+Este projeto é open source e está disponível para a comunidade Serra Rocketry.
